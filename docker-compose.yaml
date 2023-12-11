@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  back:
+    container_name: backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: yarn run deploy
+    volumes:
+      - .:/usr/app/
+      - /usr/app/node_modules
+
+  postgres:
+    env_file:
+      - .env
+    image: postgres:15.5-alpine3.19
+    volumes:
+      - ./docker-entrypoint-initdb/:/docker-entrypoint-initdb.d
+      - postgres_db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${USERNAME:-admin}
+      POSTGRES_PASSWORD: ${PASSWORD:-admin}
+      POSTGRES_DB: todoapp
+    restart: always
+    ports:
+      - "5433:5432"
+
+volumes:
+  postgres_db:
+
